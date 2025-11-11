@@ -6,16 +6,24 @@ This notebook presents a comprehensive solution for analyzing historical inflati
 The core innovation lies in its RAG system, which is enhanced with dedicated analytical helper functions. This design enables the system to accurately and deterministically answer specific numerical queries (e.g., highest/lowest inflation, trends, averages) by performing calculations directly on the pandas DataFrame. For more open-ended or contextual questions, the system seamlessly falls back to a traditional RAG pipeline, retrieving relevant information from the FAISS index and using a GPT-2B-it large language model to generate grounded responses. This approach ensures both numerical precision for analytical tasks and flexible, context-aware answers for broader inquiries, effectively tackling the challenge of providing insightful and accurate information from historical economic data. 
 In this context, "hybrid RAG" refers to the system's ability to combine two different approaches to answer user queries:
 
-Direct Analytical Functions: For specific, data-centric questions (like "What is the highest inflation year?" or "What is the average inflation between X and Y?"), the system first attempts to answer them using pre-defined Python functions. These functions directly query and calculate results from the pandas DataFrame. This approach ensures numerical precision and deterministic answers for questions that can be solved with direct data analysis.
+Direct Analytical Functions:
+For specific, data-centric questions (like "What is the highest inflation year?" or "What is the average inflation between X and Y?"), the system first attempts to answer them using pre-defined Python functions. These functions directly query and calculate results from the pandas DataFrame. This approach ensures numerical precision and deterministic answers for questions that can be solved with direct data analysis.
 
 Retrieval-Augmented Generation (Traditional RAG): If a query doesn't fit one of the pre-defined analytical patterns, the system falls back to a more conventional RAG pipeline. 
 
 This involves:
-Retrieval: Searching a database of text embeddings (generated from your inflation data) to find the most relevant information chunks. Augmentation: Feeding these retrieved chunks as context to a Large Language Model (LLM). Generation: The LLM then uses this context, along with your original query, to generate a human-like answer. This approach provides flexibility and contextual understanding for broader, more qualitative questions. So, it's "hybrid" because it doesn't solely rely on the LLM to interpret and answer everything. Instead, it intelligently routes queries to the most appropriate method – either a precise analytical calculation or a contextual LLM generation – optimizing for both accuracy and versatility.
+Retrieval: Searching a database of text embeddings (generated from your inflation data) to find the most relevant information chunks.
+
+Augmentation: Feeding these retrieved chunks as context to a Large Language Model (LLM). 
+
+Generation: The LLM then uses this context, along with your original query, to generate a human-like answer. 
+
+This approach provides flexibility and contextual understanding for broader, more qualitative questions. So, it's "hybrid" because it doesn't solely rely on the LLM to interpret and answer everything. Instead, it intelligently routes queries to the most appropriate method – either a precise analytical calculation or a contextual LLM generation – optimizing for both accuracy and versatility.
 
 
 findings & trade-offs for my decisions
-Key Findings: Data Quality and Completeness: The data loading and preprocessing steps successfully cleaned the raw Excel file. Importantly, no missing values were found for the Annual_Inflation column, ensuring a complete dataset for analysis. Inflation Trends and Extremes: The analysis clearly identified the highest inflation year (2022 at 286.75) and the lowest (1914 at 10.02). Specific periods like 1939-1945, 2000-2010, and 2019-2021 consistently showed increasing inflation trends.
+Key Findings:
+Data Quality and Completeness: The data loading and preprocessing steps successfully cleaned the raw Excel file. Importantly, no missing values were found for the Annual_Inflation column, ensuring a complete dataset for analysis. Inflation Trends and Extremes: The analysis clearly identified the highest inflation year (2022 at 286.75) and the lowest (1914 at 10.02). Specific periods like 1939-1945, 2000-2010, and 2019-2021 consistently showed increasing inflation trends.
 
 Accurate Analytical Responses: The dedicated analytical helper functions provided precise and accurate numerical answers for queries such as highest/lowest inflation, trends over specific periods, and average inflation (e.g., 151.94 between 1990 and 2000). This confirmed the effectiveness of the direct calculation approach.
 
