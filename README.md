@@ -1,49 +1,84 @@
 # Hybrid-RAG-System-for-Historical-Inflation-Data-Analysis
 This work presents a comprehensive solution for analyzing historical inflation data.
 
-This notebook presents a comprehensive solution for analyzing historical inflation data and responding to user queries using a hybrid Retrieval-Augmented Generation (RAG) system. The project begins with loading and meticulously preprocessing an Excel dataset containing annual inflation figures. It then transforms this structured data into text chunks, which are subsequently embedded into a vector space using Sentence-BERT. A FAISS index is constructed to enable efficient retrieval of relevant information.
+This project provides a complete, end-to-end solution for exploring historical inflation data and answering user questions using a hybrid Retrieval-Augmented Generation (RAG) system.
 
-The core innovation lies in its RAG system, which is enhanced with dedicated analytical helper functions. This design enables the system to accurately and deterministically answer specific numerical queries (e.g., highest/lowest inflation, trends, averages) by performing calculations directly on the pandas DataFrame. For more open-ended or contextual questions, the system seamlessly falls back to a traditional RAG pipeline, retrieving relevant information from the FAISS index and using a GPT-2B-it large language model to generate grounded responses. This approach ensures both numerical precision for analytical tasks and flexible, context-aware answers for broader inquiries, effectively tackling the challenge of providing insightful and accurate information from historical economic data. 
-In this context, "hybrid RAG" refers to the system's ability to combine two different approaches to answer user queries:
+It begins by loading and carefully preprocessing an Excel file containing annual inflation values. After ensuring the data is clean and consistent, the system converts the structured dataset into text chunks and embeds them using Sentence-BERT. These embeddings are stored in a FAISS index, enabling fast and efficient retrieval.
+
+What really makes this system stand out is its hybrid design. Instead of relying solely on an LLM, it combines two complementary approaches:
 
 Direct Analytical Functions:
-For specific, data-centric questions (like "What is the highest inflation year?" or "What is the average inflation between X and Y?"), the system first attempts to answer them using pre-defined Python functions. These functions directly query and calculate results from the pandas DataFrame. This approach ensures numerical precision and deterministic answers for questions that can be solved with direct data analysis.
+For precise, numerical questions such as
+“What’s the highest inflation year?” or “What is the average inflation between 1990 and 2000?”,
+the system bypasses the LLM and directly computes the answer using pandas.
+This ensures accuracy, determinism, and eliminates the risk of hallucination.
 
-Retrieval-Augmented Generation (Traditional RAG): If a query doesn't fit one of the pre-defined analytical patterns, the system falls back to a more conventional RAG pipeline. 
+Traditional RAG Pipeline:
+For open-ended or context-heavy questions, the system switches to a typical RAG workflow:
 
-This involves:
-Retrieval: Searching a database of text embeddings (generated from your inflation data) to find the most relevant information chunks.
+Retrieve relevant text chunks from the FAISS index
 
-Augmentation: Feeding these retrieved chunks as context to a Large Language Model (LLM). 
+Use these chunks as context
 
-Generation: The LLM then uses this context, along with your original query, to generate a human-like answer. 
+Let a GPT-2B-it model generate a clear, grounded response
 
-This approach provides flexibility and contextual understanding for broader, more qualitative questions. So, it's "hybrid" because it doesn't solely rely on the LLM to interpret and answer everything. Instead, it intelligently routes queries to the most appropriate method – either a precise analytical calculation or a contextual LLM generation – optimizing for both accuracy and versatility.
+This helps the system handle broader questions where interpretation and explanation are important.
 
+Key Findings
 
-findings & trade-offs for my decisions
-Key Findings:
-Data Quality and Completeness: The data loading and preprocessing steps successfully cleaned the raw Excel file. Importantly, no missing values were found for the Annual_Inflation column, ensuring a complete dataset for analysis. Inflation Trends and Extremes: The analysis clearly identified the highest inflation year (2022 at 286.75) and the lowest (1914 at 10.02). Specific periods like 1939-1945, 2000-2010, and 2019-2021 consistently showed increasing inflation trends.
+Clean and Complete Data:
+The dataset had no missing values in the Annual_Inflation column, making it reliable for analysis.
 
-Accurate Analytical Responses: The dedicated analytical helper functions provided precise and accurate numerical answers for queries such as highest/lowest inflation, trends over specific periods, and average inflation (e.g., 151.94 between 1990 and 2000). This confirmed the effectiveness of the direct calculation approach.
+Inflation Trends:
+The highest inflation was recorded in 2022 (286.75) and the lowest in 1914 (10.02).
+Certain periods—like 1939–1945, 2000–2010, and 2019–2021—showed consistent upward trends.
 
-Effective Contextual Handling: For questions not directly answerable by the analytical functions, the RAG system successfully leveraged the LLM. It also correctly identified when insufficient context was available (e.g., for 'inflation spikes' or 'pandemic times' beyond the explicitly provided data points), preventing hallucination.
+Accurate Analytical Responses:
+The analytical helper functions worked exactly as intended, giving precise results such as average inflation between 1990–2000 (151.94).
 
-Robust Summary Statistics: Comprehensive summary statistics for Annual_Inflation were generated, providing a clear overview of the data's distribution (mean, std, min, max, quartiles).
+Effective Contextual Reasoning:
+When analytical functions didn’t apply, the RAG+LLM pipeline stepped in smoothly.
+Importantly, the system avoided hallucinations by recognising when the dataset lacked enough context—such as during questions about “pandemic spikes” not explicitly represented in the data.
 
-Trade-offs in Design Decisions: Hybrid RAG Approach (Analytical vs. LLM):
-Benefit: This hybrid design offers the best of both worlds. It ensures high accuracy and determinism for analytical queries by relying on direct Python computations, eliminating LLM-induced errors or hallucinations for numerical facts. Simultaneously, it provides flexibility and contextual understanding for broader questions by leveraging the LLM. Trade-off: The complexity of implementation is higher. It requires careful query classification and the development of specific analytical functions. This adds maintenance overhead compared to a purely LLM-driven RAG system, which might simplify the architecture but potentially sacrifice numerical precision.
+Strong Summary Statistics:
+Descriptive statistics (mean, quartiles, min, max, etc.) were generated, giving a solid overview of inflation distribution across the years.
 
-Choice of LLM (Gemma-2B-it):
-Benefit: Gemma-2B-it is a relatively small model, offering faster inference times and lower computational resource requirements (GPU memory). This makes it more practical for deployment in resource-constrained environments like Colab and potentially for real-time applications.
+Trade-offs in the Design
+1. Hybrid RAG (Analytical + LLM)
 
-Trade-off: Being a smaller model, Gemma-2B-it might possess less nuanced understanding and lower complex reasoning capabilities compared to much larger, more powerful LLMs. Its performance is highly dependent on the quality and specificity of the retrieved context.
+Benefit:
+Combines accuracy (from direct calculations) with flexibility (from the LLM).
+Numerical questions are answered perfectly, while interpretive ones still receive rich explanations.
 
-Embedding Model (Sentence-BERT: all-MiniLM-L6-v2):
-Benefit: all-MiniLM-L6-v2 is known for its efficiency, speed, and good performance in generating semantically meaningful embeddings. It strikes a good balance between speed and quality for general-purpose sentence embeddings. Trade-off: While generally strong, it might not capture highly domain-specific nuances as effectively as a larger or fine-tuned model could. However, for this dataset, its performance proved adequate.
+Trade-off:
+More complex to build and maintain.
+Requires query classification logic and multiple custom functions.
 
-FAISS Indexing (IndexFlatIP):
-Benefit: FAISS provides extremely fast similarity search capabilities, crucial for quick retrieval of relevant context. IndexFlatIP is efficient for cosine similarity when embeddings are normalized. Trade-off: Primarily designed for in-memory indexing, which means the entire index must reside in RAM. For extremely large datasets (beyond what's typically handled in a notebook), memory constraints could become a limitation, necessitating more advanced FAISS index types or distributed solutions.
+2. Choice of LLM (Gemma-2B-it)
+
+Benefit:
+Very lightweight, fast, and ideal for environments like Google Colab or real-time use cases.
+
+Trade-off:
+Smaller models may miss deeper reasoning or subtle interpretations that larger LLMs handle better.
+Performance strongly depends on how relevant the retrieved context is.
+
+3. Embedding Model (all-MiniLM-L6-v2)
+
+Benefit:
+Efficient, fast, and generally produces high-quality embeddings for most tasks.
+
+Trade-off:
+May not capture extremely domain-specific details as well as larger or fine-tuned embeddings.
+
+4. FAISS Index (IndexFlatIP)
+
+Benefit:
+Very fast similarity search and perfect for cosine-similarity-based embeddings.
+
+Trade-off:
+Entire index lives in RAM.
+Works great for moderate datasets, but huge datasets would require more advanced FAISS configurations.
 
 
 
